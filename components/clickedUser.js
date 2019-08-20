@@ -22,10 +22,11 @@ import Takipciler from './takipciler'
 
 
 @observer 
-class userPage extends React.Component {
+class ClickedUser extends React.Component {
   constructor(props){
     super(props)
     this.state = {
+      user: MainStore.clickedUser,
       showProfil : true,
       showGonderiler: false,
       showFriends: false,
@@ -79,19 +80,21 @@ class userPage extends React.Component {
       else if (this.state.showProfil) {
         output = (
           <ScrollView style = {styles.profilYazi}>
-            <Text style= {styles.gonderiText}> Kullanıcı Adı: {MainStore.mainUser.username}</Text>
-            <Text style= {styles.gonderiText}> İsim: {MainStore.mainUser.name}</Text>
-            <Text style= {styles.gonderiText}> Soy isim: {MainStore.mainUser.surname}</Text>
-            <Text style= {styles.gonderiText}> Branş: {MainStore.mainUser.sportArea}</Text>
+            {ratePerson()}
+            <Text style= {styles.gonderiText}> Isim: {this.state.user.username}</Text>
+            <Text style= {styles.gonderiText}> Isim: {this.state.user.name}</Text>
+            <Text style= {styles.gonderiText}> Soy isim: {this.state.user.surname}</Text>
+            <Text style= {styles.gonderiText}> Şehir: {this.state.user.city}</Text>
+            <Text style= {styles.gonderiText}> Brans: {this.state.user.type}</Text>
             <Text style= {styles.gonderiText}> Cinsiyet: {this.state.gender}</Text>
-            <Text style= {styles.gonderiText}> Kulüp: {MainStore.mainUser.club}</Text>
-            <Text style= {styles.gonderiText}> Şehir: {MainStore.mainUser.city}</Text>
-            <Text style= {styles.gonderiText}> Doğum Tarihi: {MainStore.mainUser.birthDay}</Text>
-            <Text style= {styles.gonderiText}> Boy: {MainStore.mainUser.height}</Text>
-            <Text style= {styles.gonderiText}> Kilo: {MainStore.mainUser.weight}</Text>
-            <Text style= {styles.gonderiText}> Ayak: {MainStore.mainUser.usedLeg}</Text>
-            <Text style= {styles.gonderiText}> Lig: {MainStore.mainUser.leauge}</Text>
-            <Text style = {styles.gonderiText}>TFF Lisans Numarasi: {MainStore.mainUser.tffLisans}</Text>
+            <Text style= {styles.gonderiText}> Klup: {this.state.user.club}</Text>
+            <Text style= {styles.gonderiText}> Mevki: {this.state.user.position}</Text>
+            <Text style= {styles.gonderiText}> Dogum Tarihi: {this.state.user.birthDate}</Text>
+            <Text style= {styles.gonderiText}> Boy: {this.state.user.height}</Text>
+            <Text style= {styles.gonderiText}> Kilo: {this.state.user.weight}</Text>
+            <Text style= {styles.gonderiText}> Ayak: {this.state.user.foot}</Text>
+            <Text style = {styles.gonderiText}>TFF Lisans Numarasi: {this.state.user.tffLisans}</Text>
+            <Text style = {styles.gonderiText}>Biyografi: {this.state.user.bio}</Text>
             <View style = {{height: 450}}></View>
           </ScrollView>
         )
@@ -118,19 +121,19 @@ class userPage extends React.Component {
           </View>
           <Text 
             style = {styles.name}
-          >@{MainStore.mainUser.surname}</Text>
+          >@{this.state.user.surname}</Text>
         </View>
         
         {/* <View 
           style = {styles.profilHeaders}
         > 
-          {/* <TouchableOpacity style = {styles.headerIcons}
+          <TouchableOpacity style = {styles.headerIcons}
             onPress = {() => {
               this.toggleShowGonderiler()}}
           >
               <Icon name = 'menu' style = {styles.Icon}></Icon>
               <Text style = {styles.headerIconText}>Gonderiler</Text>
-          </TouchableOpacity> 
+          </TouchableOpacity>
           <TouchableOpacity style = {styles.headerIcons}
             onPress = {() => {
               this.toggleShowProfil()}}
@@ -138,13 +141,13 @@ class userPage extends React.Component {
             <Icon name = 'person' style = {styles.Icon}></Icon>
             <Text style = {styles.headerProfil}>Profil</Text>
           </TouchableOpacity>
-          {/* <TouchableOpacity style = {styles.headerIcons}
+          <TouchableOpacity style = {styles.headerIcons}
             onPress = {() => {
               this.toggleShowFriends()}}
           >
             <Icon name = 'people' style = {styles.Icon}></Icon>
             <Text style = {styles.headerIconText}>Takip Edilenler</Text>
-          </TouchableOpacity> 
+          </TouchableOpacity>
         </View> */}
         {arr()}
       </View>
@@ -178,9 +181,7 @@ const styles = StyleSheet.create({
     top: 80
   },
   headerIcons: {
-    width: "100%",
-    textAlign: "center",
-    justifyContent: 'center'
+    width: "33%",
   },
   Icon: {
     textAlign: "center"
@@ -215,5 +216,5 @@ const styles = StyleSheet.create({
 })
 
 
-export default userPage;
+export default ClickedUser;
 

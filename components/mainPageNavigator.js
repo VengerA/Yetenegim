@@ -11,12 +11,10 @@ import {
 
 import {observer, action, inject } from 'mobx-react';
 import { createStackNavigator, createAppContainer, createBottomTabNavigator } from 'react-navigation';
-import Opening from './opening';
-import SignIn from './signin';
-import mainPage from './mainPage';
-import userPage from './user'
+import MainPage from './mainPage';
+import ClickedUser from './clickedUser'
 
-class SignNavigator extends React.Component {
+class MainPageNavigator extends React.Component {
   constructor(props){
     super(props)
   }
@@ -31,14 +29,14 @@ class SignNavigator extends React.Component {
 
 
 const Navigator = createStackNavigator({
-  'Opening': {
-    screen: Opening
+  'Main': {
+    screen: MainPage,
+    navigationOptions: {
+      header: null
+    }
   },
-  'ContinueSignIn': {
-    screen: SignIn
-  },
-  'Profile' : {
-    screen: userPage
+  'ClickedUser': {
+    screen: ClickedUser
   }
 })
 
@@ -48,5 +46,5 @@ const styles = StyleSheet.create({
 
 })
 
-export default SignNavigator;
+export default MainPageNavigator;
 

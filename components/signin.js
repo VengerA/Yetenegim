@@ -9,7 +9,8 @@ import {
   TouchableOpacity,
   Picker,
   ScrollView,
-  MultipleChoice
+  MultipleChoice,
+  Alert
 } from 'react-native';
 
 import Video from 'react-native-video';
@@ -17,6 +18,7 @@ import Icon from 'react-native-ionicons';
 import {observer, action, inject } from 'mobx-react';
 import MainStore from './../mobx/store';
 import { black } from 'ansi-colors';
+import axios from 'axios';
 
 
 @observer 
@@ -24,25 +26,53 @@ class SignIn extends React.Component {
   constructor(props){
     super(props)
     this.state = {
-        brans: "Futbolcu",
+        brans: 'Erkek',
+        gender : '',
         newUser: {
-            brans: 'brans',
-            lig: 'lig'
+            gender: "M",
+            type:"FP"
         },
-        
     }
+    }
+  addUsername = (input) => {
+    this.state.newUser.username = input
   }
   addName = (input) => {
       this.state.newUser.name = input
   }
   addSurname = (input) => {
-      this.setState(newUser.surname = input)
+      this.state.newUser.surname = input
   }
   updateBrans = (brans) => {
-      this.state.newUser.brans = brans
+    if(brans === ''){
+        Alert.alert('Brans Kismi Bos kalamaz')
+    }
+    if(brans === 'Futbol Oyuncusu'){
+        this.setState({brans:brans})
+        this.state.newUser.type = "FP"
+    }
+    if(brans === 'Sivil Gozlemci'){
+        this.setState({brans: brans})
+        this.state.newUser.type = "CV"
+    }
+    if(brans === 'Kulup Presoneli'){
+        this.setState({brans: brans})
+        this.state.newUser.type = "CP"
+    }
+    if(brans === 'Antrenor'){
+        this.setState({brans: brans})
+        this.state.newUser.type = "AN"
+    }
   }
   addGender = (input) => {
-      this.state.newUser.gender = input
+      if(input === 'Erkek'){
+        this.setState({gender: input})
+        this.state.newUser.gender = 'M'
+      }
+      else {
+        this.setState({gender: input})
+        this.state.newUser.gender = 'F'
+      }
   }
   addCity =(input) => {
       this.state.newUser.city = input
@@ -59,11 +89,11 @@ class SignIn extends React.Component {
   }
   //Kuliup Personeli 
   addPozisyon = (input) => {
-      this.state.newUser.workingPosition = input
+      this.state.newUser.position = input
   }
   //Futbolcu 
   addbirthDay = (input) => {
-      this.state.newUser.birthDay = input
+      this.state.newUser.birthDate = input
   }
   addWeight = (input) => {
       this.state.newUser.weight = input
@@ -72,26 +102,30 @@ class SignIn extends React.Component {
       this.state.newUser.height = input
   }
   addUsedLeg = (input) => {
-      this.state.newUser.usedLeg = input
+      this.state.newUser.foot = input
   }
-  addLeauge = (input) => {
-      this.state.newUser.leauge = input
-  }
+//   addLeauge = (input) => {
+//       this.state.newUser.leauge = input
+//   }
   addLisansNumber = (input) => {
-      this.state.newUser.LisansNumber = input
+      this.state.newUser.licenseNumber = input
   }
   addTffLisansNo = (input) => {
       this.state.newUser.tffLisans = input
   }
-  
 
-  createNewUser = (user) =>{
-      MainStore.mainUser = {
-          ...MainStore.mainUser,
-          user
-      }
+
+  addNewUser = () => {
+      let newUser = {
+        ...MainStore.newUser,
+        ...this.state.newUser
+      } 
+      axios.post('http://ieeemetu.pythonanywhere.com/api/accounts/auth/register/', newUser)
+      .then(response => {
+          Alert.alert(JSON.stringify(response))
+      })
+      .catch(error => Alert.alert(error))
   }
-
 
 
   render() {
@@ -101,14 +135,17 @@ class SignIn extends React.Component {
         if(brans === "Antrenor"){
             output = (
                 <View>
-                    <View   style = {styles.container}>
+                    {/* <View   style = {styles.container}>
                         <Text>Gecmis Kulupler</Text>
                         <TextInput 
                             placeholder = "Gecmis Kulupler"
                             style = {styles.input}
+                            onChangeText = {(Kulup) => {
+                                this.addGecmisKulup(kulup)
+                            }}
                         />
-                    </View>
-                    <View   style = {styles.container}>
+                    </View> */}
+                    {/* <View   style = {styles.container}>
                         <Text>Sertifikalar</Text>
                         <TextInput 
                             placeholder = "Sertifikalar"
@@ -117,14 +154,17 @@ class SignIn extends React.Component {
                             }}
                             style = {styles.input}
                         />
-                    </View>
-                    <View   style = {styles.container}>
+                    </View> */}
+                    {/* <View   style = {styles.container}>
                         <Text>TFF linki</Text>
                         <TextInput 
                             placeholder = "TFF Linki"
                             style = {styles.input}
+                            onChangeText = {(text) => {
+                                this.addTffLink(text)
+                            }}
                         />
-                    </View>
+                    </View> */}
                 </View>
             )
         }
@@ -135,11 +175,14 @@ class SignIn extends React.Component {
                     <TextInput 
                         placeholder = "Calistigi Pozisyon"
                         style = {styles.input}
+                        onChangeText = {(input) => {
+                            this.addPozisyon(input)
+                        }}
                     />
                 </View>
             )
         }
-        else if( brans === "Futbolcu"){
+        else if( brans === "Futbol Oyuncusu"){
             output = (
                 <View>
                     {/* <View style = {styles.container}>
@@ -167,6 +210,9 @@ class SignIn extends React.Component {
                         <TextInput 
                             placeholder = 'Dogum Yili'
                             style = {styles.input}
+                            onChangeText = {(input) => {
+                                this.addbirthDay(input)
+                            }}
                         />
                     </View>
                     <View style = {styles.container}>
@@ -174,6 +220,9 @@ class SignIn extends React.Component {
                         <TextInput 
                             placeholder = 'Boy'
                             style = {styles.input}
+                            onChangeText = {(input) => {
+                                this.addHeight(input)
+                            }}
                         />
                     </View>
                     <View style = {styles.container}>
@@ -181,16 +230,19 @@ class SignIn extends React.Component {
                         <TextInput 
                             placeholder = "Kilo"
                             style = {styles.input}
+                            onChangeText = {(input) => {
+                                this.addWeight(input)
+                            }}
                         />
                     </View>
                     <View style = {styles.container}>
                         <Text>Kullandigi Ayak</Text>
-                        <Picker>
+                        <Picker selectedValue = {this.state.newUser.foot} onValueChange = {input => this.addUsedLeg(input)}>
                             <Picker.Item label = "Sag" value = "Sag" />
                             <Picker.Item label = "Sol" value = "Sol" />
                         </Picker>
                     </View>
-                    <View style = {styles.container}>
+                    {/* <View style = {styles.container}>
                         <Text style = {styles.texts}>Lig</Text>
                         <TextInput 
                             placeholder = "Lig"
@@ -199,7 +251,7 @@ class SignIn extends React.Component {
                                 this.setState(this.setState(newUser.lig = input))
                             }}
                         />
-                    </View>
+                    </View> */}
                     <View   style = {styles.container}>
                         <Text   style = {styles.texts}>Kulup</Text>
                         <TextInput 
@@ -215,27 +267,31 @@ class SignIn extends React.Component {
                         <TextInput 
                             placeholder = "Lisans No"
                             style = {styles.input}
+                            onChangeText = {(input) => {
+                                this.addTffLisansNo
+                            }}
                         />
                     </View>
-                    <View style = {styles.container}>
+                    {/* <View style = {styles.container}>
                         <Text style = {styles.text}>TFF Lisans Numarasi:</Text>
                         <TextInput 
                             placeholder = "TFF Lisans Numarasi"
                             style = {styles.input}
+                            onChange
                         />
-                    </View>
+                    </View> */}
                 </View>
             )
         }
         else if(brans === "Menajer"){
-            output = (
-                <View   style = {styles.container}>
-                    <Text>TFF linki</Text>
-                    <TextInput 
-                        placeholder = "TFF Linki"
-                        style = {styles.input}
-                    />
-                </View>
+            output = (null
+                // <View   style = {styles.container}>
+                //     <Text>TFF linki</Text>
+                //     <TextInput 
+                //         placeholder = "TFF Linki"
+                //         style = {styles.input}
+                //     />
+                // </View>
         )
         }
         return (output)
@@ -244,6 +300,16 @@ class SignIn extends React.Component {
     return (
         <ScrollView>
             <View>
+                <View style = {styles.container}>
+                    <Text style = {styles.texts}>Kullanici Adi</Text>
+                    <TextInput 
+                        placeholder = "Kullanici Adi"
+                        style = {styles.input}
+                        onChangeText = {(input) => {
+                            this.addUsername(input)
+                        }}
+                    />
+                </View>
                 <View style = {styles.container}>
                     <Text style = {styles.texts}>Isim</Text>
                     <TextInput 
@@ -268,8 +334,8 @@ class SignIn extends React.Component {
             
             <View   style = {styles.container}>
                 <Text   style = {styles.texts}>Brans</Text>
-                <Picker selectedValue = {this.state.newUser.brans} onValueChange = {this.updateBrans} >
-                    <Picker.Item label = "Futbolcu" value = "Futbolcu"/> 
+                <Picker selectedValue = {this.state.brans} onValueChange = {input => this.updateBrans(input)} >
+                    <Picker.Item label = "Futbol Oyuncusu" value = "Futbol Oyuncusu"/> 
                     <Picker.Item label = "Antrenor" value = "Antrenor"/> 
                     <Picker.Item label = "Kulup Personeli" value = "Kulup Personeli"/> 
                     <Picker.Item label = "Sivili Gozlemci" value = "Sivil Gozlemci"/> 
@@ -278,7 +344,7 @@ class SignIn extends React.Component {
             </View>
             <View   style = {styles.container}>
                 <Text   style = {styles.texts}>Cinsiyet</Text>
-                <Picker selectedValue = {this.state.newUser.gender}>
+                <Picker selectedValue = {this.state.gender} onValueChange = {(input) => {this.addGender(input)}}>
                     <Picker.Item value = "Erkek" label = "Erkek" />
                     <Picker.Item value = "Kadin" label = "Kadin" />
                 </Picker>
@@ -294,7 +360,7 @@ class SignIn extends React.Component {
             {signin()}
             <TouchableOpacity style = {styles.submit}
                 onPress = {() => {
-                    this.createNewUser(this.state.newUser)
+                    this.addNewUser()
                 }}
             >
                 <Text style = {styles.submitText}>Kaydi Tamamla</Text>

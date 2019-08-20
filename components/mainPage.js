@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
+  Alert
 } from 'react-native';
 
 import Video from 'react-native-video';
@@ -18,7 +19,7 @@ import { Rating, AirbnbRating } from 'react-native-ratings';
 import {observer} from 'mobx-react';
 import MainStore from './../mobx/store'
 import Header from './header';
-
+import axios from 'axios';
 
 @observer 
 class mainPage extends React.Component {
@@ -26,8 +27,8 @@ class mainPage extends React.Component {
         super(props)
         this.state = {
             video: 'https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4',
-            image: 'https://www.yetenegim.net/wp-content/uploads/2019/01/nasil.jpg',
-            comment: false
+            comment: false,
+            comments: {}
         }
     }
 
@@ -39,76 +40,199 @@ class mainPage extends React.Component {
             this.setState({comment: true})
         }
     }
-
-    ratingCompleted = (data) => {
-        this.setState({rating: data})
+    
+    takeUser = (video) => {
+        axios.get('http://ieeemetu.pythonanywhere.com/api/accounts/users/' + video.owner_id.toString() + '/', {
+            headers: {
+                Authorization: 'Token ' + MainStore.mainUserToken 
+              }
+            })
+        .then(response => {
+            MainStore.clickedUser = response.data
+            /* this.props.navigation.navigate('ClickedUser') */
+        })
+        .catch(error => Alert.alert("Şu Anda Bu Kullanıcıya Erişilemiyor"))
     }
-  
+
+    takeUser2 = (comment) => {
+        axios.get('http://ieeemetu.pythonanywhere.com/api/accounts/users/' + comment.user.id.toString() + '/', {
+            headers: {
+                Authorization: 'Token ' + MainStore.mainUserToken 
+              }
+            })
+        .then(response => {
+            MainStore.clickedUser = response.data
+            this.props.navigation.navigate('ClickedUser')
+        })
+        .catch(error => Alert.alert("Şu Anda Bu Kullanıcıya Erişilemiyor"))
+    }
+
+    takeVideos = () => {
+        axios.get('http://ieeemetu.pythonanywhere.com/api/media/last-activities/', {
+          headers: {
+            Authorization: 'Token ' + MainStore.mainUserToken 
+          }
+        })
+        .then(response => {
+          MainStore.videoList = response.data
+        })
+    }
+    componentWillMount(){
+    this.takeVideos()
+    }
+
+    takeComments = (id) => {
+    axios.get('http://ieeemetu.pythonanywhere.com//api/media/comments/video/?id='  + id.toString() , {
+        headers: {
+            Authorization: 'Token ' + MainStore.mainUserToken 
+        }
+        })
+        .then(response => {
+        this.setState({comments: response.data})
+        })
+    }
+     
+    postComment = (videoİd) => {
+        let newComment = {
+            comment: this.state.comment,
+            video_id: videoİd,
+            owner_id: MainStore.mainUser.id.toString()
+        }
+
+        axios.post('http://ieeemetu.pythonanywhere.com/api/media/comments/video/new/', newComment, {
+            headers:{
+                Authorization: 'Token ' + MainStore.mainUserToken 
+            }
+        } )
+            .then(response => Alert.alert("Yorumunuz Yeteneğimi yeniden açtığınızda gözükecektir"))
+    }
+
+    addLike = (video) =>{
+        let addLike = {
+            owner_id: MainStore.mainUser.id,
+            video_id: video.id
+        }
+        axios.post('http://ieeemetu.pythonanywhere.com/api/media/like-video/', addLike, {
+            headers: {
+                Authorization: 'Token ' + MainStore.mainUserToken 
+            }
+            })
+            .then(resp => {
+            })
+            .catch(err => Alert.alert("Bu Postu Zaten Beğendiniz"))
+    }
+
+    addWatch = (video) => {
+        let addWatch = {
+            owner_id: MainStore.mainUser.id,
+            video_id: video.id
+        }
+        axios.post('http://ieeemetu.pythonanywhere.com/api/media/watch-video/', addWatch, {
+            headers: {
+                Authorization: 'Token ' + MainStore.mainUserToken 
+            }
+            })
+    }
+
+    rateVideo = (video, rate) => {
+        let rating = {
+            user_id : MainStore.mainUser.id,
+            video_id: video.id,
+            rate: rate
+        }
+        Alert.alert(JSON.stringify(rating))
+        axios.post('http://ieeemetu.pythonanywhere.com/api/media/rate', rating, {
+            headers: {
+                Authorization: 'Token ' + MainStore.mainUserToken 
+            }
+            })
+            .then(Alert.alert('Rating Basarli'))
+    }
+
     render() {
         const comment = (video) => {
             let output = null 
             if (this.state.comment){
                 output = (
-                    <View style = {{flexDirection: 'row', height: 50 }}>
-                        <TextInput
-                          placeholder = "Yorum Yap"
-                          style = {{width :'75%', height: '80%'}}
-
-                        />
-                        <Button
-                            style = {{width: '25%', top: 30}}
-                            title = "Gonder"
-                            onPress = {() =>{
-                                this.comment()
+                    <View>
+                        {commands(video.comments)} 
+                        <View style = {{flexDirection: 'row', height: 50 }}>
+                            <TextInput
+                            placeholder = "Yorum Yap"
+                            style = {{width :'75%', height: '80%'}}
+                            onChangeText = {(input) => {
+                                this.setState({comment : input})
                             }}
-                        />
+                            />
+                            <Button
+                                style = {{width: '25%', top: 30}}
+                                title = "Gonder"
+                                onPress = {() =>{
+                                    this.postComment(video.id)
+                                }}
+                            />
+                        </View>
                     </View>
+                    
                 )
             }
             return (output)
         }
-        const commands = (video) => {
-            let output = null
-            if (MainStore.mainUser.isPremium){
-                output = video.commands.map(command => {
-                    return (
-                        <View style = {styles.commands}>
-                            <View style = {styles.commandContainer}>
-                                <TouchableOpacity>
-                                    <Text style = {styles.commandOwner}>{command.user.name}</Text>
-                                </TouchableOpacity>
-                                <Text> yorum yapti</Text>
-                            </View>
-                            <Text style = {styles.commandText}>{command.commandText}</Text> 
-                            <Text>{command.commandDate} saat once</Text>
-                            
+        const commands = (comments) => {
+            let output = comments.map(comment => {
+                return ((
+                    <View style = {styles.commands}>
+                        <View style = {styles.commandContainer}>
+                            <TouchableOpacity 
+                                onPress = {() => {
+                                    this.takeUser2(comment)
+                                    /* this.props.navigation.navigate("ClickedUser") */
+                                }}
+                            >
+                                <Text style = {styles.commandOwner}>{comment.user.username}</Text>
+                            </TouchableOpacity>
+                            <Text> Yorum Yaptı</Text>
                         </View>
-                       
-                    )
-                })
+                        <Text style = {styles.commandText}>{comment.comment}</Text> 
+                        <Text>{Date(comment.date_created)}</Text>
+                    </View>
+                ))
+            })
+            return (output)
+            /* let output = null
+3           output = () => {comments.map(command => {
+                Alert.alert(JSON.stringify(command))
+                return (
+                    
+                )
+            })
             }
             return(output)
+        } */
         }
         const VideoFooter = (video) => {
             let output = null 
-            if (MainStore.mainUser.isPremium){
+            if (MainStore.isPremium){
                 output = (
                     <View>
                         <View style = {styles.videoFooter2}>
                             <Icon name = "eye" style = {styles.eyeIcon}></Icon>
-                            <Text style = {styles.eyeText}>{video.watchNumber}</Text>
+                            <Text style = {styles.eyeText}>{video.watch_count}</Text>
                             <Rating
                             type='star'
                             ratingCount={5}
                             imageSize={20}
-                            onFinishRating={this.ratingCompleted}
+                            onFinishRating={(rate) => this.rateVideo(video, rate)}
                             style={styles.rating}
                             />
-                            <Text style = {styles.ratingText}>8/10</Text>
+                            <Text style = {styles.ratingText}>{video.rate}</Text>
                         </View>
                         <View style = {styles.videoFooter}>
-                            <TouchableOpacity style ={styles.icons}>
+                            <TouchableOpacity style ={styles.icons}
+                                onPress = {() => this.addLike(video)}
+                            >
                                 <Icon name = "heart-empty" style = {styles.icon}></Icon>
+                                <Text style = {styles.likes}>{video.likes}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style ={styles.icons}
                                 onPress = {() => {
@@ -118,37 +242,42 @@ class mainPage extends React.Component {
                                 <Icon name = "text" style = {styles.icon}></Icon>
                             </TouchableOpacity>
                         </View>
-                        {commands(video)}
+                        {/* {commands(video)} */}
                     </View>
                 )
             }
-            return(output)        }
+            return(output)        
+        }
         const arr = MainStore.videoList.map(video => {
             return (
                 <View style = {styles.container}>
                     <View>
                         <View style = {styles.userText}>
-                            <Image source = {{uri: video.profilPhoto}}
+                            <Image source = {require('../static/yetenegimLogo.jpeg')}
                                 style = {styles.logo}
                             ></Image>
-                            <TouchableOpacity >
-                                <Text style = {styles.sharedUserName}>{video.name}</Text>
+                            <TouchableOpacity 
+                                onPress = {() => {
+                                    this.takeUser(video)
+                                }}
+                            >
+                                <Text style = {styles.sharedUserName}>{video.owner_uname}</Text>
                             </TouchableOpacity>
-                            <Text style = {{left: '85%'}}>Paylasim Yapti</Text>
+                            <Text style = {{left: '85%'}}>Paylaşım Yaptı</Text>
                         </View>
-                        <Text style = {styles.sharedDate}>{video.sharedDate} gun once paylasim Yapti</Text>
+                        <Text style = {styles.sharedDate}>{Date(video.date_created)}</Text>
                     </View>
                     <VideoPlayer 
-                        source = {{uri: 'http://techslides.com/demos/sample-videos/small.mp4'}}
+                        source = {{uri: 'http://ieeemetu.pythonanywhere.com' + video.url}}
                         style = {styles.backgroundVideo}
                         disableFullscreen ={true}
                         disableVolume = {true}
                         paused = {true}
                         disableBack = {true}
+                        onStart = {this.addWatch(video)}
                     />
                     {VideoFooter(video)}
                     {comment(video)}
-                    
                 </View>
             )
         })
@@ -218,9 +347,13 @@ const styles = StyleSheet.create({
     },
     icons:{
         flex: 4,
+        flexDirection: 'row',
+        justifyContent: 'center'
     },
-    icon: {
-        textAlign:'center'
+    likes: {
+        fontSize: 20,
+        marginLeft: 10,
+        top: "1%"
     },
     empty:{
     },

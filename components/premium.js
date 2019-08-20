@@ -13,21 +13,39 @@ import {
 import Icon from 'react-native-ionicons';
 import {observer, action, inject } from 'mobx-react';
 import Header from './header'
+import InAppBilling from "react-native-billing";
+
+
+
 class Premium extends React.Component {
   constructor(props){
     super(props)
     this.state = {
+        productId :  4637920929697763591,
+        transactionDetails: null
     }
   }
 
+  purchaseProduct = async () => {
+    try {
+      await InAppBilling.open();
+      const details = await InAppBilling.purchase(this.state.productId.toString());
+      await InAppBilling.close();
+      this.setState({ transactionDetails: JSON.stringify(details) });
+      Alert.alert("İyi satın aldın heaa")
+    } catch (err) {
+      this.setState({ error: JSON.stringify(err) });
+      await InAppBilling.close();
+    }
+  };
 
   render() {
     return (
       <View>
           <Header />
-          <Text  style = {styles.headerText}>Hesabınızı Yükseltin Profesyonel Futbolcu Olma Sansinizi Arttirin</Text>
+          <Text  style = {styles.headerText}>Hesabınızı Yükseltin ve profesyonel Futbolcu Olma Şansınızı Arttırın</Text>
           <ScrollView style = {styles.row}>
-              <Text style = {styles.header2Text}>Premium satin aldiginizda kazanacaklariniz :</Text>
+              <Text style = {styles.header2Text}>Premium Satın Aldığınızda Kazanacaklarınız:</Text>
               <View style = {styles.container}>
                   <Icon name= "arrow-forward" style = {styles.premiumIcon}></Icon>
                   <Text style = {styles.premiumText}>Sınırsız video yükleme, hem süre hem miktar olarak.</Text>
@@ -69,10 +87,13 @@ class Premium extends React.Component {
                   <Icon name= "arrow-forward" style = {styles.premiumIcon}></Icon>
                   <Text style = {styles.premiumText}>Duyuru sayfasına koyduğumuz örnek antrenman videolarını oyuncuların çekmesi sağlanacaktır. Oyuncular örnek olarak gösterdiğimiz: şut, top sürme, pas, depar, kafa vuruşu, ve benzeri ( her mevki için fifa ratingine özel antrenman videoları konularak oyuncular yönlendirilicektir.) örnek olarak gösterdiğimiz antrenmanları yaptıktan sonra yeteneğim ekibi ve yeteneğim kullanıcıları 100 üzerinden oy vererek bu futbolculara genel bir fifa ratingi vericektir. (Yeteneğim ekibinin verdiği ve uygulamayı ziyaret eden insanların verdiği ortalama alınarak fifa ratingi verilecektir.)</Text>
               </View>
-              <TouchableOpacity style = {styles.Lastcontainer}>
+              <TouchableOpacity style = {styles.Lastcontainer}
+                onPress = {() => {
+                    this.purchaseProduct()
+                }}
+              >
                   <Text style = {styles.satinAl}>Premium Satin Al </Text>
               </TouchableOpacity>
-              <View styles = {styles.empty}></View>
           </ScrollView>
       </View>
     )
@@ -100,16 +121,18 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10
     },
     Lastcontainer: {
-        flexDirection: 'row',
         paddingHorizontal: 10,
-        marginBottom: 170,
+        marginBottom: 200,
         justifyContent: 'center',
         borderWidth : 1,
         borderRadius: 50,
         width: "50%",
         padding: 15,
-        left: "45%",
+        left: "25%",
         top: 20
+    },
+    satinAl: {
+        textAlign: 'center'
     },
     premiumIcon: {
         fontSize: 18,
@@ -118,9 +141,6 @@ const styles = StyleSheet.create({
     premiumText:{
         fontSize: 18
     },
-    empty: {
-        height: 300
-    }
 })
 
 export default Premium;

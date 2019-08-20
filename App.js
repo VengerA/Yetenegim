@@ -6,9 +6,10 @@ import {
   TextInput,
   Button,
   TouchableOpacity,
+  Alert
 } from 'react-native';
 
-import { createStackNavigator, createAppContainer, createBottomTabNavigator } from 'react-navigation';
+import { createStackNavigator, createAppContainer, createBottomTabNavigator, createSwitchNavigator } from 'react-navigation';
 import {observer, action, inject } from 'mobx-react';
 import Icon from 'react-native-ionicons';
 import MainStore from './mobx/store'
@@ -21,7 +22,10 @@ import VideoUpload from './components/videoUpload';
 import DuyuruNavigator from './components/duyuruNavigator'
 import Premium from './components/premium';
 import SignNavigator from './components/signNavigator';
+import User from "./components/user";
 import axios from 'axios';
+import MainPAgeNavigator from './components/mainPageNavigator';
+import MainPageNavigator from './components/mainPageNavigator';
 
 
 
@@ -38,67 +42,16 @@ export default class App extends React.Component {
       isSignIn: true
     }
   }
-
-  checkSignIn = () => {
-    if(MainStore.mainUser.name === ''){
-      this.setState({isSignIn: false})
-    }else {
-      this.setState({isSignIn: true})
-    }
-  }
-
-  takeVideos = () => {
-    axios.get
-  }
-
   render() {
-    // const page = () => {
-    //   let output = null
-    //   if(this.state.showLogin){
-    //     output = (
-    //       <Opening />
-    //     )
-    //   }
-    //   else{
-    //     if(this.state.showHome){
-    //       output = (
-    //         <View>
-    //           <Header />
-    //           <MainPage />
-              
-    //           {/* <SignIn /> */}
-    //           <Footer />
-    //         </View>
-    //       )
-    //     }
-    //     else if (this.state.showUser){
-    //       output = (
-    //         <View>
-    //           <Header />
-    //           <UserPage />
-    //           <Footer/>
-    //         </View>
-    //       )
-    //     }
-    //     else if(this.state.showAdd){
-    //       output = (
-    //         <View>
-    //           <Header />
-    //           <Footer/>
-    //         </View>
-            
-    //       )
-    //     }
-    //   }
-    //   return (output)
     return (
-      <AppContainer />
+      <AppContainer/>
+      
       // <MainPage/>
     )
   }
 }
 
-const AppNavigator  = createBottomTabNavigator({
+const AppNavigator2  = createBottomTabNavigator({
   "Duyuru": {
     screen: DuyuruNavigator,
     navigationOptions: {
@@ -114,7 +67,7 @@ const AppNavigator  = createBottomTabNavigator({
     }
   },
   "Ana Sayfa" : {
-    screen: MainPage,
+    screen: MainPageNavigator,
     navigationOptions: {
       tabBarOptions: {
         activeTintColor: '#579ACF'
@@ -150,8 +103,8 @@ const AppNavigator  = createBottomTabNavigator({
     }
 
   },
-  "Profil" : {
-    screen : UserNavigator,
+  "Profile" : {
+    screen : User,
     navigationOptions: {
       tabBarOptions: {
         activeTintColor: '#579ACF'
@@ -163,23 +116,28 @@ const AppNavigator  = createBottomTabNavigator({
       }
     }
   },
-  "Kayit Ol" : {
-    screen : Opening,
-    navigationOptions: {
-      tabBarOptions: {
-        activeTintColor: '#579ACF'
-      },
-      tabBarLabel : "Kayit Ol",
-      tabBarIcon: ({tintColor}) => {
-        return (
-          <Icon name = "person" color = {tintColor}></Icon>)
-      }
-    }
-  },
 })
 
+const authStack = createStackNavigator(
+  {
+    "Opening": {
+      screen: Opening,
+      navigationOptions: {
+        header: null
+      }
+    }
+  })
 
-const AppContainer  = createAppContainer(AppNavigator)
+
+const AppContainer  = createAppContainer(createSwitchNavigator(
+  {
+    App: AppNavigator2,
+    Auth: authStack
+  },
+  {
+    initialRouteName: "Auth"
+  }
+))
 
 // <View>
       //   {page()}

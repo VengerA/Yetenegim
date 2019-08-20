@@ -14,6 +14,7 @@ import { createStackNavigator, createAppContainer, createBottomTabNavigator } fr
 import Duyurular from './duyurular';
 import ExampleVideolar from './examplevideos';
 import About from './about'
+import { isTSNonNullExpression } from '@babel/types';
 
 class DuyuruNavigator extends React.Component {
   constructor(props){
@@ -29,24 +30,27 @@ class DuyuruNavigator extends React.Component {
 }
 
 
-const Navigator = createStackNavigator({
-  duyurular: {
-    screen: Duyurular,
-    navigationOptions: {
-      tabBarVisible: false,
-      gesturesEnabled: false,
-      header: null
+const Navigator = createStackNavigator(
+  {
+    duyurular: {
+      screen: Duyurular,
+      navigationOptions: {
+        tabBarVisible: false,
+        gesturesEnabled: false,
+        header: null
+      }
+    },
+    OrnekVideolar: {
+      screen: ExampleVideolar,
+    },
+    Hakkimizda: {
+      screen: About,
     }
   },
-  ornekVideolar: {
-    screen: ExampleVideolar
-  },
-  Hakkimizda: {
-    screen: About
+  {
+    initialRouteName: "duyurular"
   }
-
-
-})
+)
 
 const NavgiatorContainer2 = createAppContainer(Navigator)
 

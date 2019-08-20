@@ -23,7 +23,7 @@ class About extends React.Component {
   render() {
     return (
      <View>
-        <Text>Biz Kimiz ?Biz</Text>
+        <Text>Biz Kimiz ?</Text>
         <Text>Yeteneğim, antrenman ve maç videolarınızı yükleyerek antrenör, kulüp temsilcileri ve yetkili personeller tarafından yeteneklerinizin keşfedilmesine olanak tanır.</Text>
         <Text>Yeteneğim, profesyonel kariyerinize olan yolculuğunuzda coğrafi imkansızlıklar ve şans faktörü olmaksızın herkes tarafından görülebilmenizi, mesaj yolu ile hemen iletişime geçebilmenizi ve profesyonellerle tanışabilmenizi sağlar.</Text>
         <Text>Yüklediğiniz her video ana sayfamıza direk düşüp siteye giriş yapan herkes tarafından izlenmektedir. Amacımız; Türk futbolunda kaybolan binlerce yeteneğin kendini ispatlamasını sağlamaktır.</Text>

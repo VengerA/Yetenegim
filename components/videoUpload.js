@@ -6,14 +6,21 @@ import {
   Button,
   TouchableOpacity,
   Image,
+  TextInput,
+  Alert
 } from 'react-native';
 import {
   DocumentPicker,
   DocumentPickerUtil,
 } from 'react-native-document-picker';
 
+let FileUpload = require('NativeModules').FileUpload;
+
 import Header from './header'
 import { observer } from 'mobx-react-lite';
+import MainStore from './../mobx/store';
+import axios from 'axios';
+import { ScrollView } from 'react-native-gesture-handler';
  
 class VideoUpload extends React.Component {
   constructor(props) {
@@ -23,9 +30,11 @@ class VideoUpload extends React.Component {
       fileType: '',
       fileName: '',
       fileSize: '',
+      err: null,
+      file : null
     };
   }
-  handleChange() {
+  handleChange = () => {
     //Opening Document Picker
     DocumentPicker.show(
       {
@@ -36,44 +45,90 @@ class VideoUpload extends React.Component {
         //Plain Text DocumentPickerUtil.plainText()
       },
       (error, res) => {
-        this.setState({ fileUri: res.uri });
-        this.setState({ fileType: res.type });
-        this.setState({ fileName: res.fileName });
-        this.setState({ fileSize: res.fileSize });
- 
-      }
-    );
+        const data = new FormData();
+        data.append('owner_id', MainStore.mainUser.id.toString()); // you can append anyone.
+        data.append('file', {
+          uri: res.uri,
+          type: res.type,
+          name: res.fileName
+        })
+        axios.post('http://ieeemetu.pythonanywhere.com/api/media/upload/video/', data, {
+            headers: {
+                Authorization: 'Token ' + MainStore.mainUserToken,
+                "Content-Type": "multipart/form-data",
+              }
+            })
+        .then(response => {
+            this.setState({err: response})
+            Alert.alert("Yükleme Başarılı")
+        })
+        .catch(err => {this.setState({err: err})})    
+      })
+      
+    }
+
+  uploadFile = () => {
+    let formdata = new FormData()
+    formdata.append('owner_id', MainStore.mainUser.id.toString())
+    formdata.append('file', this.state.file)
+
+    Alert.alert(JSON.stringify(formdata))
+
   }
+  
  
   render() {
     return (
       <View style={styles.container}>
         <Header />
-        <TouchableOpacity
-          activeOpacity={0.5}
-          style={{ alignItems: 'center' }}
-          onPress={this.handleChange.bind(this)}>
-          <Image
-            source={{
-              uri:
-                'https://aboutreact.com/wp-content/uploads/2018/09/clips.png',
-            }}
-            style={styles.ImageIconStyle}
-          />
-          <Text style={{ marginTop: 10 }}>Add Attachment</Text>
-        </TouchableOpacity>
-        <Text style={styles.text}>
-          {this.state.fileUri ? 'URI\n' + this.state.fileUri : ''}
-        </Text>
-        <Text style={styles.text}>
-          {this.state.fileType ? 'Type\n' + this.state.fileType : ''}
-        </Text>
-        <Text style={styles.text}>
-          {this.state.fileName ? 'File Name\n' + this.state.fileName : ''}
-        </Text>
-        <Text style={styles.text}>
-          {this.state.fileSize ? 'File Size\n' + this.state.fileSize : ''}
-        </Text>
+        <ScrollView>
+          <TouchableOpacity
+            activeOpacity={0.5}
+            style={{ alignItems: 'center' }}
+            onPress={this.handleChange.bind(this)}>
+            <Image
+              source={{
+                uri:
+                  'https://aboutreact.com/wp-content/uploads/2018/09/clips.png',
+              }}
+              style={styles.ImageIconStyle}
+            />
+            <Text style={{ marginTop: 10 }}>Add Attachment</Text>
+          </TouchableOpacity>
+          <Text style={styles.text}>
+            {this.state.fileUri ? 'URI\n' + this.state.fileUri : ''}
+          </Text>
+          <Text style={styles.text}>
+            {this.state.fileType ? 'Type\n' + this.state.fileType : ''}
+          </Text>
+          <Text style={styles.text}>
+            {this.state.fileName ? 'File Name\n' + this.state.fileName : ''}
+          </Text>
+          <Text style={styles.text}>
+            {this.state.fileSize ? 'File Size\n' + this.state.fileSize : ''}
+          </Text>
+          <Text style={styles.text}>
+            {JSON.stringify(this.state.err)}
+          </Text>
+          <View style = {styles.container}>
+          {/*  <Text style = {styles.texts}>Video Başlığı Giriniz</Text>
+            <TextInput 
+                placeholder = 'Video Başlığı'
+                style = {styles.input}
+                onChangeText = {(input) => {
+                    return(null)
+                }}
+            /> */}
+            <TouchableOpacity
+              onPress = {() => 
+                this.uploadFile()
+              }
+            >
+              <Text>Vidoeyu Yükle</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+        
       </View>
     );
   }
@@ -81,10 +136,11 @@ class VideoUpload extends React.Component {
  
 const styles = StyleSheet.create({
   container: {
+    paddingHorizontal: 16,
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    padding: 16,
+/*     padding: 16, */
     backgroundColor: 'white',
   },
   text: {

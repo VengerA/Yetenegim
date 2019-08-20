@@ -28,16 +28,19 @@ class UserNavigator extends React.Component {
   render() {
     const Screen = () => {
         let output = null
-        if(MainStore.mainUser.name === ''){
-            output = (
-                <Opening />
-            )
+         if(MainStore.mainUser.username === ''){
+             output = (
+                 <Opening />
+             )
+         }
+         else {
+             output = (
+                 <User />
+             )
         }
-        else {
-            output = (
-                <User />
-            )
-        }
+        output = (
+                  <User />
+              )
         return (output)
     }
     return (

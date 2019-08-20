@@ -7,7 +7,8 @@ import {
   Button,
   Image,
   SafeAreaView,
-  TouchableOpacity
+  TouchableOpacity,
+  Alert
 } from 'react-native';
 import Icon from 'react-native-ionicons';
 import {observer, action, inject } from 'mobx-react';
@@ -33,19 +34,19 @@ class Duyuru extends React.Component {
             <Header />
             <View style = {styles.duyuruHeader}>
                 <TouchableOpacity style = {styles.headerButtons}
-                    onPress = {() => this.props.navigation.navigate('ornekVideolar')}
+                    onPress = {() => this.props.navigation.navigate('OrnekVideolar')}
                 >
-                    <Text style = {styles.buttonText}>Cekmeniz Gereken Videolar</Text>
+                    <Text style = {styles.buttonText}>Öğretici Ve Çekebileceğiniz Antrenman Videoları</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style = {styles.headerButtons}
-                    // onPress = {() => this.props.navigation.navigate('Videos')} 
+                    onPress = {() => Alert.alert("Bu Part Gelecekte Açılacaktır")} 
                 >
-                    <Text style = {styles.buttonText}>Secmeler</Text>
+                    <Text style = {styles.buttonText}>Seçmeler</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style = {styles.headerButtons}
                     onPress = {() => this.props.navigation.navigate('Hakkimizda')}
                 >
-                    <Text style = {styles.buttonText}>Hakkimizda</Text>
+                    <Text style = {styles.buttonText}>Hakkımızda</Text>
                 </TouchableOpacity>
             </View>
         </View>
