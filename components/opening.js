@@ -18,8 +18,8 @@ import axios from 'axios';
 import DatePicker from 'react-native-datepicker';
 
 
+@observer
 class Opening extends React.Component {
-
     constructor(props){
         super(props)
         this.state = {
@@ -29,6 +29,7 @@ class Opening extends React.Component {
             passwd: 'password',
             password2: 'passwordAgain',
             date: "2019-07-30",
+            city: "Ankara",
             logUser:{
             },
             user:{},
@@ -37,8 +38,9 @@ class Opening extends React.Component {
             gender : 'Erkek',
             newUser: {
                 gender: "M",
-                type:"FP"
+                type:"FP",
             },
+            cityList: []
         }
     }
 
@@ -53,7 +55,7 @@ class Opening extends React.Component {
     }
 
     takeUserData = (id) => {
-        axios.get('http://ieeemetu.pythonanywhere.com/api/accounts/users/' + id.toString() + '/', {
+        axios.get('http://18.191.4.87/api/accounts/users/' + id.toString() + '/', {
             headers: {
                 Authorization: 'Token ' + MainStore.mainUserToken 
             }
@@ -73,16 +75,27 @@ class Opening extends React.Component {
             username: this.state.email,
             passwd: this.state.passwd
         }
-        axios.post('http://ieeemetu.pythonanywhere.com/api/accounts/auth/login/', addUser)
+        axios.post('http://18.191.4.87/api/accounts/auth/login/', addUser)
         .then(response => {
             this.giveToken(response.data.token)
             this.takeUserData(response.data.id) 
-            Alert.alert('adamsın')
+            Alert.alert("Yeteneğime Hoşgeldiniz")
         })
         .catch((error) => {
-            Alert.alert(JSON.stringify(error))
+            Alert.alert('Lütfen İnternet Bağlantınızı Kullanıcı Adınızı ve şifrenizi Kontrol Ediniz')
         })
         
+    }
+
+    cityArr = () => {
+        axios.get('http://18.191.4.87/api/accounts/cities/')
+        .then(response => {
+            MainStore.cityList = response.data
+        })
+    }
+
+    componentWillMount(){
+        this.cityArr()
     }
 
     addUsername = (input) => {
@@ -126,11 +139,12 @@ class Opening extends React.Component {
         }
     }
     addCity =(input) => {
+        this.setState({city: input})
         this.state.newUser.city = input
     }
     // Antranorler
     addGecmisKulup = (kulup) =>{
-        this.state.newUser.GecmisKulup = kulup
+        this.state.newUser.club = kulup
     }
     addSertifika = (input) => {
         this.state.newUser.sertifikalar = input 
@@ -154,6 +168,7 @@ class Opening extends React.Component {
     }
     addUsedLeg = (input) => {
         this.state.newUser.foot = input
+        this.setState({foot: input})
     }
 //   addLeauge = (input) => {
 //       this.state.newUser.leauge = input
@@ -171,13 +186,14 @@ class Opening extends React.Component {
         ...this.state.user,
         ...this.state.newUser
         }
-        axios.post('http://ieeemetu.pythonanywhere.com/api/accounts/auth/register/', newUser)
+        axios.post('http://18.191.4.87/api/accounts/auth/register/', newUser)
         .then(response => {
             MainStore.mainUserToken = response.data.token
             this.takeUserData(response.data.id)
             this.props.navigation.navigate("App")
+            Alert.alert("Yetenegime Hosgeldiniz")
         })
-        .catch(Alert.alert("Lütfen Uygulamayı Yeniden Açıp tekrardan Deneyin"))
+        .catch(Alert.alert("Eger ki Giris Yapmazsa Lutfen Tekrar Deneyiniz"))
     }
 
     
@@ -297,8 +313,13 @@ class Opening extends React.Component {
                       />
                   </View>
                   <View style = {styles.container}>
-                      <Text>Kullandığı Ayak</Text>
-                      <Picker selectedValue = {this.state.newUser.foot} onValueChange = {input => this.addUsedLeg(input)}>
+                        <Text>Kullandığı Ayak</Text>
+                        <Picker selectedValue = {this.state.foot} 
+                            selectedValue = {this.state.foot}
+                            onValueChange = {input => 
+                                this.addUsedLeg(input)
+                            }
+                        >
                           <Picker.Item label = "Sağ" value = "Sağ" />
                           <Picker.Item label = "Sol" value = "Sol" />
                       </Picker>
@@ -308,9 +329,7 @@ class Opening extends React.Component {
                       <TextInput 
                           placeholder = "Lig"
                           style = {styles.input}
-                          onChangeText ={(input) => {
-                              this.setState(this.setState(newUser.lig = input))
-                          }}
+                          onChangeText ={(input) => {this.state.newUser.leauge = input}}
                       />
                   </View> 
                   <View   style = {styles.container}>
@@ -360,6 +379,16 @@ class Opening extends React.Component {
       }
       return (output)
     }
+
+    
+    const arr2 = MainStore.cityList.map(item => {
+            output = ((
+                <Picker.Item label = {item.name} value = {item.name}/> 
+            ))
+        return output
+    })
+    
+
     const  opening = () => {
         let output = null
         if(this.state.showLogIn){
@@ -371,7 +400,7 @@ class Opening extends React.Component {
                         <Icon name = 'person' style = {styles.icon}></Icon>
                         <TextInput
                             style = {styles.input1}
-                            placeholder = "E-mail"
+                            placeholder = "Kullanıcı Adı"
                             onChangeText = {(email) => {
                                 this.setState({email: email})
                             }}
@@ -488,11 +517,14 @@ class Opening extends React.Component {
                         </View>
                         <View   style = {styles.container}>
                             <Text   style = {styles.texts}>Şehir</Text>
-                            <TextInput 
-                                placeholder = "Şehir"
-                                style = {styles.input}
-                                onChangeText = {(input) => {this.addCity(input)}}
-                            />
+                            <Picker 
+                                selectedValue = {this.state.city}
+                                onValueChange = {input => {
+                                    this.addCity(input)
+                                }   
+                                }>
+                                {arr2}
+                            </Picker>
                         </View>
                         {/* <View style = {{height: 50, marginBottom: 40}}></View> */}
                         {signin()}

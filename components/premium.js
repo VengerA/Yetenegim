@@ -8,12 +8,15 @@ import {
   Image,
   SafeAreaView,
   ScrollView,
-  TouchableOpacity
+  TouchableOpacity,
+  Alert
 } from 'react-native';
 import Icon from 'react-native-ionicons';
 import {observer, action, inject } from 'mobx-react';
 import Header from './header'
 import InAppBilling from "react-native-billing";
+import MainStore from './../mobx/store';
+import axios from 'axios';
 
 
 
@@ -32,12 +35,31 @@ class Premium extends React.Component {
       const details = await InAppBilling.purchase(this.state.productId.toString());
       await InAppBilling.close();
       this.setState({ transactionDetails: JSON.stringify(details) });
-      Alert.alert("İyi satın aldın heaa")
+      makePremiumAccount()
     } catch (err) {
-      this.setState({ error: JSON.stringify(err) });
+      Alert.alert("Satın Alma Başarısız")
       await InAppBilling.close();
     }
   };
+
+  makePremiumAccount = () => {
+      let premiumAccount = {
+            account_id: MainStore.mainUser.id,
+            premium_status: true
+        }
+      axios.post("http://18.191.4.87/api/accounts/users/pstat/", premiumAccount ,{
+            headers : {
+                Authorization: 'Token ' + MainStore.mainUserToken 
+            }
+            .then(response => {
+                Alert.alert("Hesabınız Başarılı Bir Şekilde Premium Hale Geldı")
+            })
+            .catch(error =>{
+                Alert.alert('Bir Hata Oluştu. Eğer ki para ödemesi yaptıysanız lütfen İnstagram üzerinden bizmle iletişime geçin')
+            })
+      })    
+      
+  }
 
   render() {
     return (

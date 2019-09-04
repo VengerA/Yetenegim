@@ -34,7 +34,7 @@ class Duyuru extends React.Component {
             <Header />
             <View style = {styles.duyuruHeader}>
                 <TouchableOpacity style = {styles.headerButtons}
-                    onPress = {() => this.props.navigation.navigate('OrnekVideolar')}
+                    onPress = {() => Alert.alert('Bu Kısım Gelecekte Açılacaktır')}
                 >
                     <Text style = {styles.buttonText}>Öğretici Ve Çekebileceğiniz Antrenman Videoları</Text>
                 </TouchableOpacity>

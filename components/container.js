@@ -49,16 +49,6 @@ class Container extends React.Component {
       this.setState({isSignIn: true})
     }
   }
-
-  takeVideos = () => {
-    axios.get('http://ieeemetu.pythonanywhere.com/api/media/last-activities/')
-    .then(response => {
-      MainStore.videoList = response.data
-    })
-  }
-  componentWillMount(){
-    this.takeVideos()
-  }
   render() {
     // const page = () => {
     //   let output = null

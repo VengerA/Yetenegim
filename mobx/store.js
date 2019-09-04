@@ -3,7 +3,7 @@ import { observable, action } from "mobx";
 class MainStore {
     @observable showLogin = true
 
-    @observable apiLink = 'http://ieeemetu.pythonanywhere.com'
+    @observable apiLink = 'http://18.191.4.87'
 
     @observable showHome = true
 
@@ -26,9 +26,9 @@ class MainStore {
 
     }
 
-    @observable videoList = [
-        
-    ]
+    @observable videoList = []
+
+    @observable cityList = []
 
     @observable mainUser = {
         username: '',

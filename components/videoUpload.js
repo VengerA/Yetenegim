@@ -34,6 +34,11 @@ class VideoUpload extends React.Component {
       file : null
     };
   }
+
+  componentWillMount(){
+    Alert.alert("Video Seçilir Seçilmez Yükleme başlayacaktır")
+  }
+
   handleChange = () => {
     //Opening Document Picker
     DocumentPicker.show(
@@ -45,14 +50,17 @@ class VideoUpload extends React.Component {
         //Plain Text DocumentPickerUtil.plainText()
       },
       (error, res) => {
-        const data = new FormData();
+        if (res === null) {
+          Alert.alert("Lütfen Video Seçiniz")
+        }
+        else {const data = new FormData();
         data.append('owner_id', MainStore.mainUser.id.toString()); // you can append anyone.
         data.append('file', {
           uri: res.uri,
           type: res.type,
           name: res.fileName
         })
-        axios.post('http://ieeemetu.pythonanywhere.com/api/media/upload/video/', data, {
+        axios.post('http://18.191.4.87/api/media/upload/video/', data, {
             headers: {
                 Authorization: 'Token ' + MainStore.mainUserToken,
                 "Content-Type": "multipart/form-data",
@@ -62,9 +70,8 @@ class VideoUpload extends React.Component {
             this.setState({err: response})
             Alert.alert("Yükleme Başarılı")
         })
-        .catch(err => {this.setState({err: err})})    
+        .catch(err => {this.setState({err: err})})}
       })
-      
     }
 
   uploadFile = () => {
@@ -107,9 +114,6 @@ class VideoUpload extends React.Component {
           <Text style={styles.text}>
             {this.state.fileSize ? 'File Size\n' + this.state.fileSize : ''}
           </Text>
-          <Text style={styles.text}>
-            {JSON.stringify(this.state.err)}
-          </Text>
           <View style = {styles.container}>
           {/*  <Text style = {styles.texts}>Video Başlığı Giriniz</Text>
             <TextInput 
@@ -119,13 +123,6 @@ class VideoUpload extends React.Component {
                     return(null)
                 }}
             /> */}
-            <TouchableOpacity
-              onPress = {() => 
-                this.uploadFile()
-              }
-            >
-              <Text>Vidoeyu Yükle</Text>
-            </TouchableOpacity>
           </View>
         </ScrollView>
         

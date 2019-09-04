@@ -82,16 +82,13 @@ class userPage extends React.Component {
             <Text style= {styles.gonderiText}> Kullanıcı Adı: {MainStore.mainUser.username}</Text>
             <Text style= {styles.gonderiText}> İsim: {MainStore.mainUser.name}</Text>
             <Text style= {styles.gonderiText}> Soy isim: {MainStore.mainUser.surname}</Text>
-            <Text style= {styles.gonderiText}> Branş: {MainStore.mainUser.sportArea}</Text>
-            <Text style= {styles.gonderiText}> Cinsiyet: {this.state.gender}</Text>
+            <Text style= {styles.gonderiText}> Cinsiyet: {MainStore.mainUser.gender}</Text>
             <Text style= {styles.gonderiText}> Kulüp: {MainStore.mainUser.club}</Text>
             <Text style= {styles.gonderiText}> Şehir: {MainStore.mainUser.city}</Text>
             <Text style= {styles.gonderiText}> Doğum Tarihi: {MainStore.mainUser.birthDay}</Text>
             <Text style= {styles.gonderiText}> Boy: {MainStore.mainUser.height}</Text>
             <Text style= {styles.gonderiText}> Kilo: {MainStore.mainUser.weight}</Text>
-            <Text style= {styles.gonderiText}> Ayak: {MainStore.mainUser.usedLeg}</Text>
-            <Text style= {styles.gonderiText}> Lig: {MainStore.mainUser.leauge}</Text>
-            <Text style = {styles.gonderiText}>TFF Lisans Numarasi: {MainStore.mainUser.tffLisans}</Text>
+            <Text style= {styles.gonderiText}> Ayak: {MainStore.mainUser.foot}</Text>
             <View style = {{height: 450}}></View>
           </ScrollView>
         )

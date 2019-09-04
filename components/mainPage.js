@@ -20,15 +20,18 @@ import {observer} from 'mobx-react';
 import MainStore from './../mobx/store'
 import Header from './header';
 import axios from 'axios';
+import { throwStatement } from '@babel/types';
 
 @observer 
 class mainPage extends React.Component {
     constructor(props){
         super(props)
         this.state = {
-            video: 'https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4',
+            video: '',
             comment: false,
-            comments: {}
+            comments: {},
+            videoCount: 10,
+            videoList: []
         }
     }
 
@@ -42,20 +45,20 @@ class mainPage extends React.Component {
     }
     
     takeUser = (video) => {
-        axios.get('http://ieeemetu.pythonanywhere.com/api/accounts/users/' + video.owner_id.toString() + '/', {
+        axios.get('http:/18.191.4.87/api/accounts/users/' + video.owner_id.toString() + '/', {
             headers: {
                 Authorization: 'Token ' + MainStore.mainUserToken 
               }
             })
         .then(response => {
             MainStore.clickedUser = response.data
-            /* this.props.navigation.navigate('ClickedUser') */
+            this.props.navigation.navigate('ClickedUser')
         })
         .catch(error => Alert.alert("Şu Anda Bu Kullanıcıya Erişilemiyor"))
     }
 
     takeUser2 = (comment) => {
-        axios.get('http://ieeemetu.pythonanywhere.com/api/accounts/users/' + comment.user.id.toString() + '/', {
+        axios.get('http:/18.191.4.87/api/accounts/users/' + comment.user.id.toString() + '/', {
             headers: {
                 Authorization: 'Token ' + MainStore.mainUserToken 
               }
@@ -68,21 +71,24 @@ class mainPage extends React.Component {
     }
 
     takeVideos = () => {
-        axios.get('http://ieeemetu.pythonanywhere.com/api/media/last-activities/', {
+        axios.get('http:/18.191.4.87/api/media/last-activities/?offset=' + this.state.videoCount.toString(), {
           headers: {
-            Authorization: 'Token ' + MainStore.mainUserToken 
+            Authorization: 'Token ' + MainStore.mainUserToken,     
           }
         })
         .then(response => {
-          MainStore.videoList = response.data
+            MainStore.videoList = [
+                ...MainStore.videoList,
+                ...response.data
+            ]
         })
     }
     componentWillMount(){
-    this.takeVideos()
+        this.takeVideos()
     }
 
     takeComments = (id) => {
-    axios.get('http://ieeemetu.pythonanywhere.com//api/media/comments/video/?id='  + id.toString() , {
+    axios.get('http://18.191.4.87/api/media/comments/video/?id='  + id.toString() , {
         headers: {
             Authorization: 'Token ' + MainStore.mainUserToken 
         }
@@ -99,7 +105,7 @@ class mainPage extends React.Component {
             owner_id: MainStore.mainUser.id.toString()
         }
 
-        axios.post('http://ieeemetu.pythonanywhere.com/api/media/comments/video/new/', newComment, {
+        axios.post('http://18.191.4.87/api/media/comments/video/new/', newComment, {
             headers:{
                 Authorization: 'Token ' + MainStore.mainUserToken 
             }
@@ -112,7 +118,7 @@ class mainPage extends React.Component {
             owner_id: MainStore.mainUser.id,
             video_id: video.id
         }
-        axios.post('http://ieeemetu.pythonanywhere.com/api/media/like-video/', addLike, {
+        axios.post('http://18.191.4.87/api/media/like-video/', addLike, {
             headers: {
                 Authorization: 'Token ' + MainStore.mainUserToken 
             }
@@ -127,7 +133,7 @@ class mainPage extends React.Component {
             owner_id: MainStore.mainUser.id,
             video_id: video.id
         }
-        axios.post('http://ieeemetu.pythonanywhere.com/api/media/watch-video/', addWatch, {
+        axios.post('http://18.191.4.87/api/media/watch-video/', addWatch, {
             headers: {
                 Authorization: 'Token ' + MainStore.mainUserToken 
             }
@@ -140,8 +146,7 @@ class mainPage extends React.Component {
             video_id: video.id,
             rate: rate
         }
-        Alert.alert(JSON.stringify(rating))
-        axios.post('http://ieeemetu.pythonanywhere.com/api/media/rate', rating, {
+        axios.post('http://18.191.4.87/api/media/rate', rating, {
             headers: {
                 Authorization: 'Token ' + MainStore.mainUserToken 
             }
@@ -149,32 +154,39 @@ class mainPage extends React.Component {
             .then(Alert.alert('Rating Basarli'))
     }
 
+    increaseVideoCount = () => {
+        let count = this.state.videoCount
+        this.setState({videoCount: count + 10})
+        this.takeVideos()
+    }
+
     render() {
         const comment = (video) => {
             let output = null 
-            if (this.state.comment){
-                output = (
-                    <View>
-                        {commands(video.comments)} 
-                        <View style = {{flexDirection: 'row', height: 50 }}>
-                            <TextInput
-                            placeholder = "Yorum Yap"
-                            style = {{width :'75%', height: '80%'}}
-                            onChangeText = {(input) => {
-                                this.setState({comment : input})
-                            }}
-                            />
-                            <Button
-                                style = {{width: '25%', top: 30}}
-                                title = "Gonder"
-                                onPress = {() =>{
-                                    this.postComment(video.id)
+            if(MainStore.mainUser.is_premium){
+                if(this.state.comment){
+                    output = (
+                        <View>
+                            {commands(video.comments)} 
+                            <View style = {{flexDirection: 'row', height: 50 }}>
+                                <TextInput
+                                placeholder = "Yorum Yap"
+                                style = {{width :'75%', height: '80%'}}
+                                onChangeText = {(input) => {
+                                    this.setState({comment : input})
                                 }}
-                            />
+                                />
+                                <Button
+                                    style = {{width: '25%', top: 30}}
+                                    title = "Gonder"
+                                    onPress = {() =>{
+                                        this.postComment(video.id)
+                                    }}
+                                />
+                            </View>
                         </View>
-                    </View>
-                    
-                )
+                    )
+                }
             }
             return (output)
         }
@@ -212,7 +224,7 @@ class mainPage extends React.Component {
         }
         const VideoFooter = (video) => {
             let output = null 
-            if (MainStore.isPremium){
+            if (MainStore.mainUser.is_premium){
                 output = (
                     <View>
                         <View style = {styles.videoFooter2}>
@@ -249,6 +261,8 @@ class mainPage extends React.Component {
             return(output)        
         }
         const arr = MainStore.videoList.map(video => {
+            let date = video.date_created
+            let dateTranslated = new Date(date)
             return (
                 <View style = {styles.container}>
                     <View>
@@ -265,10 +279,10 @@ class mainPage extends React.Component {
                             </TouchableOpacity>
                             <Text style = {{left: '85%'}}>Paylaşım Yaptı</Text>
                         </View>
-                        <Text style = {styles.sharedDate}>{Date(video.date_created)}</Text>
+                        <Text style = {styles.sharedDate}>{dateTranslated.toString()}</Text>
                     </View>
                     <VideoPlayer 
-                        source = {{uri: 'http://ieeemetu.pythonanywhere.com' + video.url}}
+                        source = {{uri: 'http://18.191.4.87' + video.url}}
                         style = {styles.backgroundVideo}
                         disableFullscreen ={true}
                         disableVolume = {true}
@@ -287,7 +301,11 @@ class mainPage extends React.Component {
                 <ScrollView>
                     {arr}
                     <View >
-                    <TouchableOpacity style = {styles.footer}>
+                    <TouchableOpacity style = {styles.footer}
+                        onPress = {() => {
+                            this.increaseVideoCount()
+                        }}
+                    >
                         <Icon name = "refresh"></Icon>
                         <Text style = {{left: 10, top: 5}}>Daha Fazla</Text>
                     </TouchableOpacity>
