@@ -23,7 +23,6 @@ import DuyuruNavigator from './duyuruNavigator'
 import Premium from './premium';
 import SignNavigator from './signNavigator';
 import axios from 'axios';
-import MainPAgeNavigator from './mainPageNavigator';
 import MainPageNavigator from './mainPageNavigator';
 
 

@@ -16,7 +16,6 @@ import MainStore from './mobx/store'
 import Header from './components/header';
 import Opening from './components/opening';
 import MainPage from './components/mainPage';
-import UserNavigator from './components/userNavigator';
 import SignIn from './components/signin';
 import VideoUpload from './components/videoUpload';
 import DuyuruNavigator from './components/duyuruNavigator'
@@ -24,7 +23,6 @@ import Premium from './components/premium';
 import SignNavigator from './components/signNavigator';
 import User from "./components/user";
 import axios from 'axios';
-import MainPAgeNavigator from './components/mainPageNavigator';
 import MainPageNavigator from './components/mainPageNavigator';
 
 

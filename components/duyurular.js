@@ -14,9 +14,6 @@ import Icon from 'react-native-ionicons';
 import {observer, action, inject } from 'mobx-react';
 import Header from './header'
 import { createStackNavigator, createAppContainer } from 'react-navigation';
-import Secmeler from './secmeler';
-import About from './about';
-import Videos from './videos'
 
 class Duyuru extends React.Component {
   constructor(props){

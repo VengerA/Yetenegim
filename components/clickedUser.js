@@ -9,16 +9,12 @@ import {
   TouchableOpacity,
   ScrollView
 } from 'react-native';
-import Video from 'react-native-video';
 import Icon from 'react-native-ionicons';
 import {observer, action, inject } from 'mobx-react';
 import MainStore from './../mobx/store';
 import { black } from 'ansi-colors';
-import MainPage from './mainPage';
 import Header from './header';
 import { Rating, AirbnbRating } from 'react-native-ratings';
-import PersonVideos from './personVideos';
-import Takipciler from './takipciler'
 
 
 @observer 

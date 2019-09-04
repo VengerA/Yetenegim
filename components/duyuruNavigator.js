@@ -12,9 +12,7 @@ import {
 import {observer, action, inject } from 'mobx-react';
 import { createStackNavigator, createAppContainer, createBottomTabNavigator } from 'react-navigation';
 import Duyurular from './duyurular';
-import ExampleVideolar from './examplevideos';
 import About from './about'
-import { isTSNonNullExpression } from '@babel/types';
 
 class DuyuruNavigator extends React.Component {
   constructor(props){
@@ -39,9 +37,6 @@ const Navigator = createStackNavigator(
         gesturesEnabled: false,
         header: null
       }
-    },
-    OrnekVideolar: {
-      screen: ExampleVideolar,
     },
     Hakkimizda: {
       screen: About,
